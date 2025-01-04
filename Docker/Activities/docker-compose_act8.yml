@@ -1,0 +1,42 @@
+services:
+  # postgres Database
+  postgres:
+    image: docker.io/postgres
+    environment:
+      - POSTGRES_PASSWORD=postgresPassword
+  # Redis Database
+  redis:
+    image: docker.io/redis
+    command: ["redis-server", "--protected-mode", "no"]
+  # API Server
+  api:
+    build: ./server
+    image: docker.io/shrivarshini97/complex_api
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGUSER=postgres
+      - PGPASSWORD=postgresPassword
+      - PGDATABASE=postgres
+  # Worder Service
+  worker:
+    build: ./worker
+    image: docker.io/shrivarshini97/complex_worker
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+  # React Client Services
+  client:
+    build: ./client
+    image: docker.io/shrivarshini97/complex_client
+  # nginx web server
+  nginx:
+    depends_on:
+      - api
+      - client
+    restart: always
+    build: ./nginx
+    ports:
+      - "8082:80"
