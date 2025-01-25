@@ -1,0 +1,13 @@
+-- DROP TABLE
+DROP TABLE dialogues;
+
+-- Create a table to store results
+CREATE TABLE dialogues(name STRING, no_of_dialogues STRING)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t' TBLPROPERTIES("skip.header.line.count"="2");
+
+-- Load data into the database using a file on your local system (NOT HDFS)
+LOAD DATA LOCAL INPATH '/root/inputs' INTO TABLE dialogues;
+
+-- Create a new table using data from the files table
+INSERT OVERWRITE LOCAL DIRECTORY '/root/HiveOutput1' ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t'
+SELECT name, COUNT(no_of_dialogues) AS no_of_dialogues from dialogues GROUP BY name ORDER BY no_of_dialogues DESC
